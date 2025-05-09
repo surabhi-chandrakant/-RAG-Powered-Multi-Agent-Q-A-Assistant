@@ -15,5 +15,5 @@ A Flask-based chatbot that implements Retrieval-Augmented Generation (RAG) with 
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/rag-agent-assistant.git
+   git clone https://github.com/surabhi-chandrakant/-RAG-Powered-Multi-Agent-Q-A-Assistant.git
    cd rag-agent-assistant
