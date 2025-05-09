@@ -13,6 +13,9 @@ from gpt4all import GPT4All
 import math
 from typing import List, Dict, Optional
 import time
+from langchain.document_loaders import TextLoader
+from langchain.document_loaders import PyPDFLoader
+from langchain.vectorstores import FAISS
 
 try:
     from langchain_community.document_loaders import PyPDFLoader
