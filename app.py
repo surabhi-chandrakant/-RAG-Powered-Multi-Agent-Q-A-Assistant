@@ -6,17 +6,17 @@ from datetime import datetime
 from flask import Flask, render_template, request, jsonify, send_from_directory
 from werkzeug.utils import secure_filename
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.document_loaders import TextLoader
-from langchain_community.vectorstores import FAISS
 from sentence_transformers import SentenceTransformer
 from gpt4all import GPT4All
 import math
 from typing import List, Dict, Optional
 import time
-from langchain.document_loaders import TextLoader
-from langchain.document_loaders import PyPDFLoader
-from langchain.vectorstores import FAISS
 
+# Correct imports for LangChain 0.1.0+ (Option 1)
+from langchain_community.document_loaders import TextLoader, PyPDFLoader
+from langchain_community.vectorstores import FAISS
+
+# Fallback for PDF loader
 try:
     from langchain_community.document_loaders import PyPDFLoader
 except ImportError:
