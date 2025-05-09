@@ -42,12 +42,9 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # Initialize models
 embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
-llm = GPT4All(
-    model_name="ggml-gpt4all-j-v1.3-groovy.bin",
-    model_path="E:\\job related docs\\Inflera Technologies Pty Limited\\Build RAG-Powered Multi-Agent Q&A Assistant\\models",  # Points to your models directory
-    allow_download=True,  # Will download to models/ if not present
-    device="cpu"
-)
+model_path = "C:\\Users\\SURABHI\\AppData\\Local\\nomic.ai\\GPT4All\\mistral-7b-openorca.gguf2.Q4_0.gguf"
+llm = GPT4All(model_path, allow_download=False)
+
 
 # Initialize vector store
 vector_store = None

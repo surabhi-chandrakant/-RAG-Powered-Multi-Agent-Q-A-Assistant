@@ -1,9 +1,7 @@
-streamlit==1.32.0
-gpt4all==1.0.12
-langchain==0.1.12
-langchain-community==0.0.29
+flask==2.3.2
 sentence-transformers==2.2.2
 faiss-cpu==1.7.4
-pypdf>=3.0.0
-python-dotenv>=1.0.0
-huggingface-hub==0.16.4
+langchain==0.0.346
+PyPDF2==3.0.1
+gpt4all==1.0.12
+numpy==1.24.3
