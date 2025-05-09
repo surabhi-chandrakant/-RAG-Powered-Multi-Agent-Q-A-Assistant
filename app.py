@@ -1,3 +1,11 @@
+# Add this at the very top of app.py
+try:
+    import huggingface_hub
+    if huggingface_hub.__version__ != '0.16.4':
+        raise ImportError("Wrong huggingface-hub version")
+except ImportError:
+    raise ImportError("Please install huggingface-hub==0.16.4")
+
 # Core imports
 import os
 import re
