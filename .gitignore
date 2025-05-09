@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.env
+
+# GPT4All models
+*.bin
+*.gguf
+
+# Uploads
+uploads/
+
+# Logs
+*.log

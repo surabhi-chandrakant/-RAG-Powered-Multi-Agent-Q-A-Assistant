@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced RAG Agent Assistant</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .message-container {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        .user-message {
+            background-color: #e3f2fd;
+            border-radius: 15px 15px 0 15px;
+        }
+        .bot-message {
+            background-color: #f1f1f1;
+            border-radius: 15px 15px 15px 0;
+        }
+        .context-card {
+            background-color: #fff8e1;
+            border-left: 4px solid #ffc107;
+        }
+        .tool-badge {
+            font-size: 0.75rem;
+        }
+        #upload-progress {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">Enhanced RAG Agent Assistant</h2>
+            </div>
+            <div class="card-body">
+                <div class="message-container mb-3 p-3" id="chat-box">
+                    <!-- Messages will appear here -->
+                </div>
+                
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" id="query-input" placeholder="Ask a question...">
+                    <button class="btn btn-primary" id="send-btn">Send</button>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="file-input" class="btn btn-secondary w-100">
+                        <i class="bi bi-upload"></i> Upload Documents (PDF/TXT)
+                    </label>
+                    <input type="file" id="file-input" multiple accept=".pdf,.txt" style="display: none;">
+                </div>
+                
+                <div class="progress" id="upload-progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"></div>
+                </div>
+            </div>
+            <div class="card-footer text-muted small">
+                <span id="status-indicator">Ready</span>
+                <span class="float-end" id="response-time"></span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatBox = document.getElementById('chat-box');
+            const queryInput = document.getElementById('query-input');
+            const sendBtn = document.getElementById('send-btn');
+            const fileInput = document.getElementById('file-input');
+            const uploadProgress = document.getElementById('upload-progress');
+            const statusIndicator = document.getElementById('status-indicator');
+            const responseTime = document.getElementById('response-time');
+            
+            // Add message to chat
+            function addMessage(sender, message, tool, context = null) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `mb-2 p-3 ${sender}-message`;
+                
+                let html = `<div class="d-flex justify-content-between align-items-center mb-2">
+                    <strong>${sender === 'user' ? 'You' : 'Assistant'}</strong>
+                    ${tool ? `<span class="badge bg-info tool-badge">${tool}</span>` : ''}
+                </div>`;
+                
+                html += `<div>${message}</div>`;
+                
+                if (context && context.length > 0) {
+                    html += `<div class="mt-2 p-2 context-card">
+                        <strong>Context:</strong><ul class="mb-0">`;
+                    context.forEach((chunk, i) => {
+                        html += `<li class="small">${chunk.substring(0, 150)}${chunk.length > 150 ? '...' : ''}</li>`;
+                    });
+                    html += `</ul></div>`;
+                }
+                
+                messageDiv.innerHTML = html;
+                chatBox.appendChild(messageDiv);
+                chatBox.scrollTop = chatBox.scrollTop + messageDiv.offsetHeight;
+            }
+            
+            // Send query to server
+            async function sendQuery() {
+                const query = queryInput.value.trim();
+                if (!query) return;
+                
+                // Add user message
+                addMessage('user', query, null);
+                queryInput.value = '';
+                statusIndicator.textContent = 'Processing...';
+                sendBtn.disabled = true;
+                
+                try {
+                    const startTime = Date.now();
+                    const response = await fetch('/ask', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ query })
+                    });
+                    
+                    const data = await response.json();
+                    if (response.ok) {
+                        addMessage('bot', data.result, data.tool, data.context);
+                        responseTime.textContent = `Response time: ${(data.response_time || 0).toFixed(2)}s`;
+                    } else {
+                        addMessage('bot', `Error: ${data.error}`, 'error');
+                    }
+                } catch (error) {
+                    addMessage('bot', `Error: ${error.message}`, 'error');
+                } finally {
+                    statusIndicator.textContent = 'Ready';
+                    sendBtn.disabled = false;
+                }
+            }
+            
+            // Handle file upload
+            async function handleFileUpload() {
+                const files = fileInput.files;
+                if (files.length === 0) return;
+                
+                const formData = new FormData();
+                for (let i = 0; i < files.length; i++) {
+                    formData.append('files[]', files[i]);
+                }
+                
+                uploadProgress.style.display = 'block';
+                statusIndicator.textContent = 'Uploading documents...';
+                
+                try {
+                    const response = await fetch('/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const data = await response.json();
+                    if (response.ok) {
+                        addMessage('system', `Successfully processed ${data.num_chunks} document chunks. You can now ask questions about the uploaded content.`, 'system');
+                    } else {
+                        addMessage('system', `Error: ${data.error}`, 'error');
+                    }
+                } catch (error) {
+                    addMessage('system', `Error: ${error.message}`, 'error');
+                } finally {
+                    uploadProgress.style.display = 'none';
+                    statusIndicator.textContent = 'Ready';
+                    fileInput.value = '';
+                }
+            }
+            
+            // Event listeners
+            sendBtn.addEventListener('click', sendQuery);
+            queryInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendQuery();
+            });
+            fileInput.addEventListener('change', handleFileUpload);
+        });
+    </script>
+</body>
+</html>
