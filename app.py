@@ -42,11 +42,11 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # Initialize models
 embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
-# model_path = "C:\\Users\\SURABHI\\AppData\\Local\\nomic.ai\\GPT4All\\mistral-7b-openorca.gguf2.Q4_0.gguf"
-# llm = GPT4All(model_path, allow_download=False)
+model_path = "C:\\Users\\SURABHI\\AppData\\Local\\nomic.ai\\GPT4All\\mistral-7b-openorca.gguf2.Q4_0.gguf"
+llm = GPT4All(model_path, allow_download=False)
 
-from transformers import pipeline
-llm = pipeline("text-generation", model="tiiuae/falcon-7b-instruct", device=0)
+#from transformers import pipeline
+#llm = pipeline("text-generation", model="tiiuae/falcon-7b-instruct", device=0)
 
 
 
