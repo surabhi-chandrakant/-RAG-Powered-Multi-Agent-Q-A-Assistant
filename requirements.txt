@@ -1,10 +1,11 @@
 flask==2.3.2
 sentence-transformers==2.2.2
 faiss-cpu==1.7.4
-langchain==0.0.346
+langchain==0.1.0  # Updated version
 pypdf>=3.0.0
 gpt4all==1.0.12
 numpy==1.24.3
 python-dotenv>=1.0.0
 gunicorn>=20.1.0
-langchain-community==0.0.14  # Add this line
+langchain-community==0.0.14
+langchain-core==0.1.0  # Explicitly add
